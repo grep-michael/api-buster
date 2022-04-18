@@ -5,11 +5,16 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-
 	WordListReader "github.com/michaelknudsen/WordListReader/wordlistreader"
+	flagparser "github.com/michaelknudsen/api-buster/src/flagparser"
 )
 
 func main() {
+	flagparser.Init()
+	fmt.Println(flagparser.Headers)
+
+	
+	/*
 	var wg sync.WaitGroup
 	wlr := WordListReader.MakeNewWordListReader("rockyou.txt")
 	defer wlr.Close()
@@ -19,9 +24,9 @@ func main() {
 	go sendReq(&wg, &wlr, 2)
 	wg.Add(1)
 	go sendReq(&wg, &wlr, 3)
-	wg.Wait()
+	wg.Wait()*/
 }
-
+// poc
 func sendReq(wg *sync.WaitGroup, wlr *WordListReader.WordListReader, id int) {
 	defer wg.Done()
 	methods := [...]string{"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "CONNECT", "OPTIONS", "TRACE"}
