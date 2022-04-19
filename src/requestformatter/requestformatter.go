@@ -2,9 +2,9 @@ package requestformatter
 
 import (
 	"encoding/base64"
-	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	flagparser "github.com/michaelknudsen/api-buster/src/flagparser"
 )
@@ -27,15 +27,11 @@ func FormatRequest(path string, method string) (*http.Request, error) {
 		data = base64.StdEncoding.EncodeToString([]byte(data))
 		r.Header.Add("Authorization", "Basic "+data)
 	}
-	if flagparser.Whitelist != "" {
-
-	}
-	if flagparser.Blacklist != "" {
-
-	}
-
 	if len(flagparser.Headers) > 0 {
-		fmt.Println(flagparser.Headers)
+		for _, v := range flagparser.Headers {
+			args := strings.Split(v, ":")
+			r.Header.Add(args[0], args[1])
+		}
 	}
 
 	r.URL, err = url.Parse(flagparser.Url + path)
