@@ -38,6 +38,7 @@ func main() {
 	go rlistener.Listen()
 	wg.Wait()
 	rlistener.Done()
+	rlistener.WaitForClose()
 }
 
 // poc

@@ -27,10 +27,11 @@ func ParseResponseIntoResult(res *http.Response, url string, method string) Resu
 func (rp *ResultPrinter) initFile() {
 	if flagparser.Output != "" {
 		//file specified
-		f, err := os.OpenFile(flagparser.Output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		f, err := os.OpenFile(flagparser.Output, os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
+		f.Write([]byte("["))
 		rp.file = f
 
 	} else {
@@ -38,12 +39,14 @@ func (rp *ResultPrinter) initFile() {
 	}
 }
 func (rp *ResultPrinter) Close() {
+	rp.file.(*os.File).WriteString("]")
 	rp.file.(*os.File).Close()
 }
+
 func (rp *ResultPrinter) PrintResultList(results ResultList) {
 	rp.openFile.Do(rp.initFile)
 	for _, v := range results {
-		fmt.Fprintf(rp.file, "{Url:%s,Method:%s,Status:%d}\n", v.Url, v.Method, v.StatusCode)
+		fmt.Fprintf(rp.file, "{Url:\"%s\",Method:\"%s\",Status:%d},\n", v.Url, v.Method, v.StatusCode)
 	}
 
 }

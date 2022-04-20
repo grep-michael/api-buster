@@ -9,6 +9,7 @@ type ResultListener struct {
 	doneChannel   chan struct{}
 	initOnce      sync.Once
 	printer       ResultPrinter
+	wg            sync.WaitGroup
 }
 
 func (l *ResultListener) Init() {
@@ -24,16 +25,21 @@ func (l *ResultListener) Done() {
 	l.doneChannel <- struct{}{}
 }
 
+func (l *ResultListener) WaitForClose() {
+	l.wg.Wait()
+}
+
 func (l *ResultListener) Listen() {
 	l.printer.initFile()
+	l.wg.Add(1)
 	for {
 		select {
 		case resultList := <-l.resultChannel:
 			l.printer.PrintResultList(resultList)
 		case <-l.doneChannel:
 			close(l.resultChannel)
-			close(l.doneChannel)
 			l.printer.Close()
+			l.wg.Done()
 			return
 		}
 	}
