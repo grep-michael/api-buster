@@ -3,20 +3,23 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
-	"os"
+
 	WordListReader "github.com/michaelknudsen/WordListReader/wordlistreader"
 	flagparser "github.com/michaelknudsen/api-buster/src/flagparser"
-	requestformatter "github.com/michaelknudsen/api-buster/src/requestformatter"
+	"github.com/michaelknudsen/api-buster/src/requestrepeater"
 )
+
 const (
-	THREAD_COUNT = 10
+	THREAD_COUNT = 5
 )
+
 func main() {
 	flagparser.Init()
-	//fmt.Println(flagparser.Headers)
-	
+	// I prefer explicit init function rather than built in init function
+
 	if flagparser.Wordlist == "" || flagparser.Url == "" {
 		fmt.Println("Missing wordlist and/or url")
 		os.Exit(1)
@@ -24,18 +27,14 @@ func main() {
 
 	wlr := WordListReader.MakeNewWordListReader(flagparser.Wordlist)
 	defer wlr.Close()
-	s,_ :=  wlr.ReadLine()
-	requestformatter.FormatRequest(s,"GET")
-	/*
 	var wg sync.WaitGroup
-	for i:=0;i<THREAD_COUNT;i++{
+	for i := 0; i < THREAD_COUNT; i++ {
 		wg.Add(1)
-
-		wg.Done()
+		go requestrepeater.Do(&wlr, &wg, i)
 	}
-	wg.Wait()*/
-	
+	wg.Wait()
 }
+
 // poc
 func sendReq(wg *sync.WaitGroup, wlr *WordListReader.WordListReader, id int) {
 	defer wg.Done()
