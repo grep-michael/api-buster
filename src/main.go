@@ -9,6 +9,7 @@ import (
 
 	WordListReader "github.com/michaelknudsen/WordListReader/wordlistreader"
 	flagparser "github.com/michaelknudsen/api-buster/src/flagparser"
+	"github.com/michaelknudsen/api-buster/src/outpututil"
 	"github.com/michaelknudsen/api-buster/src/requestrepeater"
 )
 
@@ -27,12 +28,16 @@ func main() {
 
 	wlr := WordListReader.MakeNewWordListReader(flagparser.Wordlist)
 	defer wlr.Close()
+	rlistener := outpututil.ResultListener{}
+	rlistener.Init()
 	var wg sync.WaitGroup
 	for i := 0; i < THREAD_COUNT; i++ {
 		wg.Add(1)
-		go requestrepeater.Do(&wlr, &wg, i)
+		go requestrepeater.Do(&wlr, &wg, rlistener.GetResultChannel())
 	}
+	go rlistener.Listen()
 	wg.Wait()
+	rlistener.Done()
 }
 
 // poc

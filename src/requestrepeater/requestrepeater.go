@@ -3,7 +3,6 @@ package requestrepeater
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 	"sync"
 
 	WordListReader "github.com/michaelknudsen/WordListReader/wordlistreader"
@@ -12,7 +11,7 @@ import (
 	"github.com/michaelknudsen/api-buster/src/requestformatter"
 )
 
-func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, id int) {
+func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, resultchan chan<- outpututil.ResultList) {
 	defer wg.Done()
 	for word := range wlr.Iter() {
 		results := outpututil.ResultList{}
@@ -22,7 +21,7 @@ func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, id int) {
 				fmt.Printf("Error formatting request for %s :%s\n", word, method)
 				continue
 			}
-			r.Header.Add("User-Agent", strconv.FormatInt(int64(id), 10))
+
 			client := http.Client{}
 			res, err := client.Do(r)
 			if err == nil {
@@ -31,7 +30,7 @@ func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, id int) {
 			}
 
 		}
-		outpututil.PrintResultList(results)
+		resultchan <- results
 
 	}
 }
