@@ -1,6 +1,5 @@
 
 # API-Buster
-# This project is not finished/started yet only the readme has been finished
 
 A buster designed specifically for brute forcing apiendpoints
 
@@ -25,6 +24,4 @@ Flags:
 ```
 # TODO
 
- - start
- - learn flags
- - plan needed modules
+ - add whitelist and blacklist functionality
