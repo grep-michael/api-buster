@@ -6,9 +6,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
 	"github.com/michaelknudsen/api-buster/src/flagparser"
 )
+
+type ResultPrinter struct {
+	file     io.Writer
+	openFile sync.Once
+}
 
 func ParseResponseIntoResult(res *http.Response, url string, method string) Result {
 	return Result{
@@ -18,25 +24,26 @@ func ParseResponseIntoResult(res *http.Response, url string, method string) Resu
 	}
 }
 
-func PrintResultList(result ResultList) {
+func (rp *ResultPrinter) initFile() {
 	if flagparser.Output != "" {
 		//file specified
-		f, err := os.Create(flagparser.Output)
+		f, err := os.OpenFile(flagparser.Output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer f.Close()
-		printResultList(result, f)
+		rp.file = f
 
 	} else {
-		printResultList(result, os.Stdout)
+		rp.file = os.Stdout
 	}
-
 }
-
-func printResultList(results ResultList, out io.Writer) {
+func (rp *ResultPrinter) Close() {
+	rp.file.(*os.File).Close()
+}
+func (rp *ResultPrinter) PrintResultList(results ResultList) {
+	rp.openFile.Do(rp.initFile)
 	for _, v := range results {
-		fmt.Fprintf(out, "{Url:%s,Method:%s,Status:%d}\n", v.Url, v.Method, v.StatusCode)
+		fmt.Fprintf(rp.file, "{Url:%s,Method:%s,Status:%d}\n", v.Url, v.Method, v.StatusCode)
 	}
 
 }

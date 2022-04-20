@@ -8,6 +8,7 @@ type ResultListener struct {
 	resultChannel chan ResultList
 	doneChannel   chan struct{}
 	initOnce      sync.Once
+	printer       ResultPrinter
 }
 
 func (l *ResultListener) Init() {
@@ -24,14 +25,15 @@ func (l *ResultListener) Done() {
 }
 
 func (l *ResultListener) Listen() {
-
+	l.printer.initFile()
 	for {
 		select {
 		case resultList := <-l.resultChannel:
-			PrintResultList(resultList)
+			l.printer.PrintResultList(resultList)
 		case <-l.doneChannel:
 			close(l.resultChannel)
 			close(l.doneChannel)
+			l.printer.Close()
 			return
 		}
 	}
