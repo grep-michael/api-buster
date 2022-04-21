@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	WordListReader "github.com/michaelknudsen/WordListReader/wordlistreader"
+	"github.com/michaelknudsen/api-buster/src/flagparser"
 	"github.com/michaelknudsen/api-buster/src/methods"
 	"github.com/michaelknudsen/api-buster/src/outpututil"
 	"github.com/michaelknudsen/api-buster/src/requestformatter"
@@ -27,6 +29,9 @@ func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, resultchan chan<
 			if err == nil {
 				defer res.Body.Close()
 				results = append(results, outpututil.ParseResponseIntoResult(res, r.URL.String(), method))
+			}
+			if flagparser.Duration > 0 {
+				time.Sleep(flagparser.Duration)
 			}
 
 		}

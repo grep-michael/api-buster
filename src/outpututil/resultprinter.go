@@ -39,8 +39,10 @@ func (rp *ResultPrinter) initFile() {
 	}
 }
 func (rp *ResultPrinter) Close() {
-	rp.file.(*os.File).WriteString("]")
-	rp.file.(*os.File).Close()
+	if flagparser.Output != "" {
+		rp.file.(*os.File).WriteString("]")
+		rp.file.(*os.File).Close()
+	}
 }
 
 func (rp *ResultPrinter) PrintResultList(results ResultList) {

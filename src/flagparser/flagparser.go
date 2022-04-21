@@ -63,7 +63,7 @@ func Init() {
 
 	flag.Var(&Headers, "H", "Specify HTTP headers, -H 'Header1: val1' -H 'Header2: val2")
 
-	flag.DurationVar(&Duration, "-delay", 0*time.Second, "Time each waits between request")
+	flag.DurationVar(&Duration, "delay", 0*time.Second, "Time each waits between request")
 
 	flag.Parse()
 }
