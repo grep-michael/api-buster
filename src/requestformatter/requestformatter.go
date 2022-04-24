@@ -33,7 +33,6 @@ func FormatRequest(path string, method string) (*http.Request, error) {
 			r.Header.Add(args[0], args[1])
 		}
 	}
-
 	r.URL, err = url.Parse(flagparser.Url + path)
 	r.Method = method
 	return r, err

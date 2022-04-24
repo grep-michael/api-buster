@@ -2,6 +2,9 @@ package flagparser
 
 import (
 	"flag"
+	"log"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -21,12 +24,41 @@ func (i *headerflags) Set(value string) error {
 	return nil
 }
 
+type statuslist []int
+
+func (i statuslist) String() string {
+	var sb strings.Builder
+	for _, v := range i {
+		sb.WriteString(strconv.FormatInt(int64(v), 10))
+		sb.WriteString(",")
+	}
+	return sb.String()
+}
+func (i *statuslist) Set(value string) error {
+	*i = statuslist{}
+	if value == "" {
+		return nil
+	}
+	codes := strings.Split(value, ",")
+	for _, v := range codes {
+		e, err := strconv.Atoi(v)
+		if err != nil {
+			log.Fatal(err)
+		}
+		*i = append(*i, e)
+	}
+	sort.Ints(*i)
+	return nil
+}
+
+var WhiteList statuslist
+var BlackList statuslist
+
 var Headers headerflags
 var Forceterminal bool
 var Cookies string
 var Password string
-var Whitelist string
-var Blacklist string
+
 var Url string
 var Username string
 var Output string
@@ -43,11 +75,13 @@ func Init() {
 	flag.StringVar(&Password, "P", "", "Password for Baisc Auth")
 	flag.StringVar(&Password, "password", "", "Password for Baisc Auth")
 
-	flag.StringVar(&Whitelist, "W", "", "status code White list (if set only codes listed here will be shown)")
-	flag.StringVar(&Whitelist, "white-list", "", "status code White list (if set only codes listed here will be shown)")
+	flag.Var(&WhiteList, "W", "status code White list (if set only codes listed here will be shown)")
+	flag.Var(&WhiteList, "white-list", "status code White list (if set only codes listed here will be shown)")
+	BlackList.Set("")
 
-	flag.StringVar(&Blacklist, "B", "400,404", "status code blacklist (default, will not show these codes; defaut: 404,400)")
-	flag.StringVar(&Blacklist, "black-list", "400,404", "status code blacklist (default, will not show these codes; defaut: 404,400)")
+	flag.Var(&BlackList, "B", "status code blacklist (default, will not show these codes; defaut: 404,400)")
+	flag.Var(&BlackList, "black-list", "status code blacklist (default, will not show these codes; defaut: 404,400)")
+	BlackList.Set("404,400")
 
 	flag.StringVar(&Url, "u", "", "The target url")
 	flag.StringVar(&Url, "url", "", "The target url")

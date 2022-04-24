@@ -45,10 +45,18 @@ func (rp *ResultPrinter) Close() {
 	}
 }
 
+func (rp *ResultPrinter) formatString(r Result) string {
+	if flagparser.Output != "" {
+		return fmt.Sprintf("{Url:\"%s\",Method:\"%s\",Status:%d},\n", r.Url, r.Method, r.StatusCode)
+	}
+	return fmt.Sprintf("Url:\"%s\", Method:\"%s\", Status:%d,\n", r.Url, r.Method, r.StatusCode)
+}
+
 func (rp *ResultPrinter) PrintResultList(results ResultList) {
 	rp.openFile.Do(rp.initFile)
 	for _, v := range results {
-		fmt.Fprintf(rp.file, "{Url:\"%s\",Method:\"%s\",Status:%d},\n", v.Url, v.Method, v.StatusCode)
+
+		fmt.Fprintf(rp.file, rp.formatString(v))
 	}
 
 }

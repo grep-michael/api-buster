@@ -26,14 +26,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	wlr := WordListReader.MakeNewWordListReader(flagparser.Wordlist)
+	wlr := WordListReader.MakeBufferedWordListReader(flagparser.Wordlist, 3)
 	defer wlr.Close()
 	rlistener := outpututil.ResultListener{}
 	rlistener.Init()
 	var wg sync.WaitGroup
 	for i := 0; i < THREAD_COUNT; i++ {
 		wg.Add(1)
-		go requestrepeater.Do(&wlr, &wg, rlistener.GetResultChannel())
+		go requestrepeater.Do(wlr, &wg, rlistener.GetResultChannel())
 	}
 	go rlistener.Listen()
 	wg.Wait()
