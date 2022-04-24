@@ -3,7 +3,6 @@ package requestrepeater
 import (
 	"fmt"
 	"net/http"
-	"sort"
 	"sync"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 )
 
 func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, resultchan chan<- outpututil.ResultList) {
+
 	defer wg.Done()
 	for word := range wlr.Iter() {
 		results := outpututil.ResultList{}
@@ -29,11 +29,25 @@ func Do(wlr *WordListReader.WordListReader, wg *sync.WaitGroup, resultchan chan<
 			res, err := client.Do(r)
 			if err == nil {
 				res.Body.Close()
-
-				bi := sort.SearchInts(flagparser.BlackList, res.StatusCode)
-				wi := sort.SearchInts(flagparser.WhiteList, res.StatusCode)
-
-				if bi <= 0 || (wi >= 0 && len(flagparser.WhiteList) > 0) {
+				//search
+				var bi int
+				for _, v := range flagparser.BlackList {
+					if v == res.StatusCode {
+						bi = 1
+						break
+					}
+				}
+				//bi := sort.SearchInts(flagparser.BlackList, res.StatusCode)
+				var wi int
+				for _, v := range flagparser.WhiteList {
+					if v == res.StatusCode {
+						wi = 1
+						break
+					}
+				}
+				//wi := sort.SearchInts(flagparser.WhiteList, res.StatusCode)
+				//fmt.Println(bi, wi, res.StatusCode)
+				if bi <= 0 && (wi > 0 || len(flagparser.WhiteList) == 0) {
 
 					results = append(results, outpututil.ParseResponseIntoResult(res, r.URL.String(), method))
 				}

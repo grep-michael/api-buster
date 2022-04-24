@@ -13,7 +13,7 @@ type ResultListener struct {
 }
 
 func (l *ResultListener) Init() {
-	l.resultChannel = make(chan ResultList, 1)
+	l.resultChannel = make(chan ResultList, 3)
 	l.doneChannel = make(chan struct{})
 }
 

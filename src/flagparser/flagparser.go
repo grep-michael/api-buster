@@ -77,7 +77,7 @@ func Init() {
 
 	flag.Var(&WhiteList, "W", "status code White list (if set only codes listed here will be shown)")
 	flag.Var(&WhiteList, "white-list", "status code White list (if set only codes listed here will be shown)")
-	BlackList.Set("")
+	WhiteList.Set("")
 
 	flag.Var(&BlackList, "B", "status code blacklist (default, will not show these codes; defaut: 404,400)")
 	flag.Var(&BlackList, "black-list", "status code blacklist (default, will not show these codes; defaut: 404,400)")
